@@ -47,9 +47,10 @@ class ObjectRegistry(PostActions):
         self._validate = validate if validate else lambda *args, **kwargs: None
         self._register = {}
         if not isfile(self._registryFile):
+            _d = {}
             for default in defaults or []:
-                self._register[str(uuid4())] = default
-            self._save(self._register)
+                _d[str(uuid4())] = default
+            self._save(_d)
 
         self.registerKeys()
 
@@ -106,6 +107,7 @@ class ObjectRegistry(PostActions):
         values[identifier] = data
         self._save(values)
 
+    # FIXME: Not tested, redundant and incomplete w.r.t. (keys, booleanKeys & jsonKeys) - zp admin intergr. test **will** fail!
     def getConfiguration(self):
         return self.listObjects()
 
@@ -116,9 +118,6 @@ class ObjectRegistry(PostActions):
         self._register['keys'] = keys or []
         self._register['booleanKeys'] = booleanKeys or []
         self._register['jsonKeys'] = jsonKeys or []
-
-    def registerConversion(self, **kwargs):
-        self._register['json'] = kwargs.keys()
 
     def _handle(self, method, Body, session, **kwargs):
         formValues = parse_qs(Body, keep_blank_values=True)
